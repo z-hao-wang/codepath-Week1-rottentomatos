@@ -16,6 +16,7 @@
 		AFDB3CBA1A847B10004C5A93 /* ListTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFDB3CB91A847B10004C5A93 /* ListTableViewController.swift */; };
 		AFDB3CBC1A8480EB004C5A93 /* ListTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFDB3CBB1A8480EB004C5A93 /* ListTableViewCell.swift */; };
 		AFF1719B1A84967000455FBB /* bridging.m in Sources */ = {isa = PBXBuildFile; fileRef = AFF1719A1A84967000455FBB /* bridging.m */; };
+		AFF171A11A856B6C00455FBB /* MovieDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFF171A01A856B6C00455FBB /* MovieDetailViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +46,7 @@
 		AFDB3CBB1A8480EB004C5A93 /* ListTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListTableViewCell.swift; sourceTree = "<group>"; };
 		AFF171991A84966F00455FBB /* rottenTomato-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "rottenTomato-Bridging-Header.h"; sourceTree = "<group>"; };
 		AFF1719A1A84967000455FBB /* bridging.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = bridging.m; sourceTree = "<group>"; };
+		AFF171A01A856B6C00455FBB /* MovieDetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovieDetailViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +94,7 @@
 				AF4FC9CC1A8086C00062D4B4 /* AppDelegate.swift */,
 				AF4FC9D01A8086C00062D4B4 /* Main.storyboard */,
 				AFDB3CB91A847B10004C5A93 /* ListTableViewController.swift */,
+				AFF171A01A856B6C00455FBB /* MovieDetailViewController.swift */,
 				AFDB3CBB1A8480EB004C5A93 /* ListTableViewCell.swift */,
 				AF4FC9D31A8086C00062D4B4 /* Images.xcassets */,
 				AF4FC9D51A8086C00062D4B4 /* LaunchScreen.xib */,
@@ -280,6 +283,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AFDB3CBA1A847B10004C5A93 /* ListTableViewController.swift in Sources */,
+				AFF171A11A856B6C00455FBB /* MovieDetailViewController.swift in Sources */,
 				AFDB3CBC1A8480EB004C5A93 /* ListTableViewCell.swift in Sources */,
 				AF4FC9CD1A8086C00062D4B4 /* AppDelegate.swift in Sources */,
 				AFF1719B1A84967000455FBB /* bridging.m in Sources */,
