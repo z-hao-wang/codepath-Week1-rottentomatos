@@ -10,9 +10,12 @@ import UIKit
 
 class ListTableViewCell: UITableViewCell {
 
+    @IBOutlet weak var labelScore2: UILabel!
+    @IBOutlet weak var labelScore1: UILabel!
     @IBOutlet weak var movieImage: UIImageView!
     @IBOutlet weak var labelTitle: UILabel!
-    @IBOutlet weak var labelDesc: UILabel!
+    @IBOutlet weak var labelDesc: UITextView!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

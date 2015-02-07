@@ -13,7 +13,13 @@ let IN_THEATER = 1
 let MAX_UPCOMING = 3
 let MAX_IN_THEATERS = 10
 
-class ListTableViewController: UITableViewController {
+class ListTableViewController: UITableViewController, UISearchBarDelegate {
+
+    @IBOutlet weak var searchBar: UISearchBar!
+    @IBOutlet weak var searchBarView: UIView!
+    @IBOutlet weak var errorView: UIView!
+    
+    var filteredMovies = NSArray()
     
     let apikey = "ya5m8hg2zbz48gu98gwr3brs"
     
@@ -29,28 +35,35 @@ class ListTableViewController: UITableViewController {
     var thearterDataLoaded = false
     var upcomingDataLoaded = false
     
-    func loadJson(url: String, task: (NSArray) -> ()) {
-        
+    //Send URL request to retrive json data. Call success or fail callback
+    func loadJson(url: String, success: (NSArray) -> (), fail: () -> ()) {
         let urlWithKey = NSURL(string: url + "?apikey=" + self.apikey)!
         var request = NSURLRequest(URL: urlWithKey)
         NSURLConnection.sendAsynchronousRequest(request, queue: NSOperationQueue.mainQueue()) { (response: NSURLResponse!, data: NSData!, error: NSError!) -> Void in
             if (data == nil) {
                 //Display error message here
                 println(error)
+                fail()
             } else {
                 var responseDictionary = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: nil) as NSDictionary
                 if let moviesList = responseDictionary["movies"] as? NSArray {
-                    task(moviesList)
+                    success(moviesList)
                 }
             }
+            
         }
+    }
+    
+    func onRefresh() {
+        self.loadData()
     }
     
     func loadData() {
         var stepsLoaded = 0
         let urls = [self.theatersURL, self.upcomingURL]
+        SVProgressHUD.show()
         for idx in 0..<urls.count {
-            loadJson(urls[idx], {moviesList in
+            loadJson(urls[idx], {moviesList in //success
                 switch idx {
                 case 0:
                     self.upcomingData = moviesList
@@ -61,13 +74,56 @@ class ListTableViewController: UITableViewController {
                 }
                 if ++stepsLoaded == urls.count {
                     //loading done
-                    SVProgressHUD.dismiss()
                     self.tableView.reloadData()
+                    SVProgressHUD.dismiss()
+                    self.refreshControl?.endRefreshing()
                 }
                 println("steps" + String(stepsLoaded))
+            }, { //fail
+                if ++stepsLoaded == urls.count {
+                    //loading done
+                    self.tableView.reloadData()
+                    SVProgressHUD.dismiss()
+                    self.refreshControl?.endRefreshing()
+                    let currentRect = self.errorView.frame.integerRect
+                    self.toggleNetworkError(true)
+                }
             })
         }
     }
+    
+    //Seach filter apply
+    func filterContentForSearchText(data: NSArray, searchText: String) -> NSArray {
+        // Filter the array using the filter method
+        let toFilter = data as Array;
+        var filteredMovies = toFilter.filter({( movie: AnyObject) -> Bool in
+            if let m = movie as? NSDictionary {
+                if let title = m["title"] as? String {
+                    let stringMatch = title.rangeOfString(searchText)
+                    return stringMatch != nil
+                }
+            }
+            return false
+        })
+        return filteredMovies
+    }
+    
+    /*
+    //For UISearchBar Behavior
+    func searchDisplayController(controller: UISearchDisplayController!, shouldReloadTableForSearchString searchString: String!) -> Bool {
+        self.upcomingData = filterContentForSearchText(self.upcomingData, searchText: searchString)
+        self.theatersData = filterContentForSearchText(self.theatersData, searchText: searchString)
+        self.tableView.reloadData()
+        return true
+    }
+    
+    //For UISearchBar Behavio
+    func searchDisplayController(controller: UISearchDisplayController!, shouldReloadTableForSearchScope searchOption: Int) -> Bool {
+        self.upcomingData = filterContentForSearchText(self.upcomingData, searchText: self.searchDisplayController!.searchBar.text)
+        self.theatersData = filterContentForSearchText(self.theatersData, searchText: self.searchDisplayController!.searchBar.text)
+        self.tableView.reloadData()
+        return true
+    }*/
     
     func getDataByIndexPath(indexPath: NSIndexPath) -> NSDictionary {
         switch indexPath.section {
@@ -79,18 +135,36 @@ class ListTableViewController: UITableViewController {
             return self.theatersData[indexPath.row] as NSDictionary
         }
     }
+    
+    func toggleNetworkError(show: Bool) {
+        self.view.bringSubviewToFront(errorView)
+        UIView.animateWithDuration(0.7, delay: 0.0, options: .CurveEaseOut, animations: {
+            var errorFrame = self.errorView.frame
+            errorFrame.origin.y += errorFrame.size.height
+            self.errorView.frame = errorFrame
+        }, completion: { finished in
+                println("animation done!")
+        })
+        errorView.hidden = !show
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        SVProgressHUD.show()
+        toggleNetworkError(false)
+        //self.view.addSubview(errorView)
         loadData()
+        
+        //Add pull refresh controll
+        refreshControl = UIRefreshControl()
+        refreshControl?.addTarget(self, action: "onRefresh", forControlEvents: UIControlEvents.ValueChanged)
+        self.view.insertSubview(refreshControl!, atIndex: 0)
         
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
-        tableView.rowHeight = 120
+        tableView.rowHeight = 120 //fix row height
     }
 
     override func didReceiveMemoryWarning() {
@@ -122,7 +196,7 @@ class ListTableViewController: UITableViewController {
     override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         switch section {
             case UPCOMING:
-                return "Coming"
+                return "Coming Soon"
             case IN_THEATER:
                 return "In Theater"
             default:
@@ -140,16 +214,35 @@ class ListTableViewController: UITableViewController {
 
         cell.labelTitle?.text = data["title"] as? String
         if let ratings = data["ratings"] as? NSDictionary {
-            if let audience_score = ratings["audience_score"] as? Int {
-                cell.labelDesc?.text = String(audience_score)
+            if let critics_score = ratings["critics_score"] as? Int {
+                cell.labelScore1?.text = String(critics_score)
             }
+            if let audience_score = ratings["audience_score"] as? Int {
+                cell.labelScore2?.text = String(audience_score)
+            }
+        }
+        if let synopsis = data["synopsis"] as? String {
+            cell.labelDesc?.text = synopsis
         }
         if let posters = data["posters"] as? NSDictionary {
             if let thumbnail = posters["thumbnail"] as? String {
-                //get original image url
-                let originalImgURL = thumbnail.stringByReplacingOccurrencesOfString("tmb.jpg", withString: "ori.jpg")
-                cell.movieImage?.setImageWithURL(NSURL(string: originalImgURL))
+                //first load thumnnail
+                let thumbnailURL = NSURL(string: thumbnail)!
+                cell.movieImage?.setImageWithURLRequest(NSURLRequest(URL: thumbnailURL), placeholderImage: nil, success: { (a, b, imageTmb) -> Void in
+                    //Set image transition
+                    UIView.transitionWithView(cell.movieImage!, duration: 0.5, options: .TransitionCrossDissolve, animations: {
+                        cell.movieImage?.image = imageTmb
+                        return
+                    }, completion: nil)
+                    //load original image, use thumbnail image as placeholder
+                    let originalImgURL = thumbnail.stringByReplacingOccurrencesOfString("tmb.jpg", withString: "ori.jpg")
+                    cell.movieImage?.setImageWithURL(NSURL(string: originalImgURL), placeholderImage: imageTmb)
+                }, failure: { (a, b, c) -> Void in
+                    println(a)
+                })
+                
             }
+            
         }
         return cell
     }

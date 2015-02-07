@@ -12,6 +12,7 @@ class MovieDetailViewController: UIViewController {
     
     var data = NSDictionary()
     
+    @IBOutlet weak var descText: UITextView!
     @IBOutlet weak var backgroundImg: UIImageView!
     
     func setImage() {
@@ -28,6 +29,10 @@ class MovieDetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setImage()
+        if let synopsis = data["synopsis"] as? String {
+            descText.text = synopsis
+        }
+        
         // Do any additional setup after loading the view.
     }
 
