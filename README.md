@@ -1,6 +1,6 @@
 # codepath-Week1-rottentomatos
 
-This is a movies app displaying box office and top rental DVDs using the [Rotten Tomatoes API](http://developer.rottentomatoes.com/docs/read/JSON). See the [Week 1 Assignment](https://courses.codepath.com/courses/intro_to_ios/week/1#!assignment) tutorial.
+This is a movies app displaying box office using the [Rotten Tomatoes API](http://developer.rottentomatoes.com/docs/read/JSON). See the [Week 1 Assignment](https://courses.codepath.com/courses/intro_to_ios/week/1#!assignment) tutorial.
 
 Time spent: 10 hours spent in total
 ### Features
