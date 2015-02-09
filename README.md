@@ -10,7 +10,7 @@ Time spent: 10 hours spent in total
   * [x] Required: User can view a list of movies from Rotten Tomatoes. Poster images must be loading asynchronously.
   * [x] Required: User can view movie details by tapping on a cell.
   * [x] Required: User sees loading state while waiting for movies API. Used [SVProgressHUD](http://samvermette.com/199)
-  * [x] Required: User sees error message when there's a networking error. 
+  * [x] Required: User sees error message when there's a networking error. [Screenshot](network_error_screenshot.png)
   * [x] Required: User can pull to refresh the movie list. Guide: Using UIRefreshControl
 
 #### Optional
