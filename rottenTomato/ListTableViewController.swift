@@ -19,6 +19,8 @@ class ListTableViewController: UITableViewController, UISearchBarDelegate {
     @IBOutlet weak var searchBarView: UIView!
     @IBOutlet weak var errorView: UIView!
     
+    var filterText = ""
+    
     var filteredMovies = NSArray()
     
     let apikey = "ya5m8hg2zbz48gu98gwr3brs"
@@ -31,6 +33,8 @@ class ListTableViewController: UITableViewController, UISearchBarDelegate {
     
     var theatersData = NSArray()
     var upcomingData = NSArray()
+    var upcomingDataFiltered = NSArray()
+    var theatersDataFiltered = NSArray()
     
     var thearterDataLoaded = false
     var upcomingDataLoaded = false
@@ -74,9 +78,11 @@ class ListTableViewController: UITableViewController, UISearchBarDelegate {
                 }
                 if ++stepsLoaded == urls.count {
                     //loading done
+                    self.applyFilter()
                     self.tableView.reloadData()
                     SVProgressHUD.dismiss()
                     self.refreshControl?.endRefreshing()
+                    self.toggleNetworkError(false) //hide network error
                 }
                 println("steps" + String(stepsLoaded))
             }, { //fail
@@ -95,11 +101,14 @@ class ListTableViewController: UITableViewController, UISearchBarDelegate {
     //Seach filter apply
     func filterContentForSearchText(data: NSArray, searchText: String) -> NSArray {
         // Filter the array using the filter method
+        if countElements(searchText) == 0 {
+            return data
+        }
         let toFilter = data as Array;
         var filteredMovies = toFilter.filter({( movie: AnyObject) -> Bool in
             if let m = movie as? NSDictionary {
                 if let title = m["title"] as? String {
-                    let stringMatch = title.rangeOfString(searchText)
+                    let stringMatch = title.rangeOfString(searchText, options: .CaseInsensitiveSearch)
                     return stringMatch != nil
                 }
             }
@@ -108,39 +117,36 @@ class ListTableViewController: UITableViewController, UISearchBarDelegate {
         return filteredMovies
     }
     
-    /*
-    //For UISearchBar Behavior
-    func searchDisplayController(controller: UISearchDisplayController!, shouldReloadTableForSearchString searchString: String!) -> Bool {
-        self.upcomingData = filterContentForSearchText(self.upcomingData, searchText: searchString)
-        self.theatersData = filterContentForSearchText(self.theatersData, searchText: searchString)
-        self.tableView.reloadData()
-        return true
+    func applyFilter() {
+        self.upcomingDataFiltered = filterContentForSearchText(self.upcomingData, searchText: self.filterText)
+        self.theatersDataFiltered = filterContentForSearchText(self.theatersData, searchText: self.filterText)
     }
     
-    //For UISearchBar Behavio
-    func searchDisplayController(controller: UISearchDisplayController!, shouldReloadTableForSearchScope searchOption: Int) -> Bool {
-        self.upcomingData = filterContentForSearchText(self.upcomingData, searchText: self.searchDisplayController!.searchBar.text)
-        self.theatersData = filterContentForSearchText(self.theatersData, searchText: self.searchDisplayController!.searchBar.text)
+    //Search bar text change event. update filter
+    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+        NSLog("Search Bat Text Changed \(searchText)")
+        filterText = searchText
+        applyFilter()
         self.tableView.reloadData()
-        return true
-    }*/
+    }
     
     func getDataByIndexPath(indexPath: NSIndexPath) -> NSDictionary {
         switch indexPath.section {
         case UPCOMING:
-            return self.upcomingData[indexPath.row] as NSDictionary
+            return self.upcomingDataFiltered[indexPath.row] as NSDictionary
         case IN_THEATER:
-            return self.theatersData[indexPath.row] as NSDictionary
+            return self.theatersDataFiltered[indexPath.row] as NSDictionary
         default:
-            return self.theatersData[indexPath.row] as NSDictionary
+            return self.theatersDataFiltered[indexPath.row] as NSDictionary
         }
     }
     
     func toggleNetworkError(show: Bool) {
         self.view.bringSubviewToFront(errorView)
+        self.errorView.frame.origin.y -= self.errorView.frame.size.height //set to top of original position
         UIView.animateWithDuration(0.7, delay: 0.0, options: .CurveEaseOut, animations: {
             var errorFrame = self.errorView.frame
-            errorFrame.origin.y += errorFrame.size.height
+            errorFrame.origin.y += errorFrame.size.height //animate to original position
             self.errorView.frame = errorFrame
         }, completion: { finished in
                 println("animation done!")
@@ -152,9 +158,7 @@ class ListTableViewController: UITableViewController, UISearchBarDelegate {
         super.viewDidLoad()
         toggleNetworkError(false)
         //self.view.addSubview(errorView)
-        loadData()
-        
-        //Add pull refresh controll
+        loadData()        //Add pull refresh controll
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: "onRefresh", forControlEvents: UIControlEvents.ValueChanged)
         self.view.insertSubview(refreshControl!, atIndex: 0)
@@ -185,9 +189,9 @@ class ListTableViewController: UITableViewController, UISearchBarDelegate {
         // Return the number of rows in the section.
         switch section {
             case UPCOMING:
-                return self.upcomingData.count > MAX_UPCOMING ? MAX_UPCOMING : self.upcomingData.count
+                return self.upcomingDataFiltered.count > MAX_UPCOMING ? MAX_UPCOMING : self.upcomingDataFiltered.count
             case IN_THEATER:
-                return self.theatersData.count > MAX_IN_THEATERS ? MAX_IN_THEATERS : self.theatersData.count
+                return self.theatersDataFiltered.count > MAX_IN_THEATERS ? MAX_IN_THEATERS : self.theatersDataFiltered.count
             default:
                 return 0
         }
@@ -203,6 +207,8 @@ class ListTableViewController: UITableViewController, UISearchBarDelegate {
                 return ""
         }
     }
+    
+    
 
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         NSLog("Did tap row \(indexPath.row)")

@@ -14,6 +14,8 @@ class MovieDetailViewController: UIViewController {
     
     @IBOutlet weak var descText: UITextView!
     @IBOutlet weak var backgroundImg: UIImageView!
+    @IBOutlet weak var scroller: UIScrollView!
+    @IBOutlet weak var movieTitle: UILabel!
     
     func setImage() {
         var data = self.data
@@ -32,7 +34,9 @@ class MovieDetailViewController: UIViewController {
         if let synopsis = data["synopsis"] as? String {
             descText.text = synopsis
         }
-        
+        if let title = data["title"] as? String {
+            movieTitle.text = title
+        }
         // Do any additional setup after loading the view.
     }
 
