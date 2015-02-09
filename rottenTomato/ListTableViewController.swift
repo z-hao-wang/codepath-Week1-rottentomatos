@@ -13,6 +13,8 @@ let IN_THEATER = 1
 let MAX_UPCOMING = 3
 let MAX_IN_THEATERS = 10
 
+var imageURLLoading = []
+
 class ListTableViewController: UITableViewController, UISearchBarDelegate {
 
     @IBOutlet weak var searchBar: UISearchBar!
@@ -232,66 +234,16 @@ class ListTableViewController: UITableViewController, UISearchBarDelegate {
         }
         if let posters = data["posters"] as? NSDictionary {
             if let thumbnail = posters["thumbnail"] as? String {
-                //first load thumnnail
-                let thumbnailURL = NSURL(string: thumbnail)!
-                cell.movieImage?.setImageWithURLRequest(NSURLRequest(URL: thumbnailURL), placeholderImage: nil, success: { (a, b, imageTmb) -> Void in
-                    //Set image transition
-                    UIView.transitionWithView(cell.movieImage!, duration: 0.5, options: .TransitionCrossDissolve, animations: {
-                        cell.movieImage?.image = imageTmb
-                        return
-                    }, completion: nil)
-                    //load original image, use thumbnail image as placeholder
-                    let originalImgURL = thumbnail.stringByReplacingOccurrencesOfString("tmb.jpg", withString: "ori.jpg")
-                    cell.movieImage?.setImageWithURL(NSURL(string: originalImgURL), placeholderImage: imageTmb)
-                }, failure: { (a, b, c) -> Void in
-                    println(a)
-                })
-                
+                if let backgroundImg = cell.movieImage? {
+                    Utils.setImageWithUrlFromThumbnailToLarge(thumbnail, imageView: backgroundImg)
+                }
             }
             
         }
         return cell
     }
 
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return NO if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            // Delete the row from the data source
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return NO if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    // Navigation. Prepare data for MovieDetailView
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         // Get the new view controller using [segue destinationViewController].
         // Pass the selected object to the new view controller.

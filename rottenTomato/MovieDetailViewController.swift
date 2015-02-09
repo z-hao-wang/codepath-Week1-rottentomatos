@@ -8,22 +8,29 @@
 
 import UIKit
 
+let NAV_BAR_HEIGHT: CGFloat = 64.0
+let TEXT_BOTTOM_LIMIT: CGFloat = 100.0
+
 class MovieDetailViewController: UIViewController {
     
     var data = NSDictionary()
     
     @IBOutlet weak var descText: UITextView!
     @IBOutlet weak var backgroundImg: UIImageView!
-    @IBOutlet weak var scroller: UIScrollView!
     @IBOutlet weak var movieTitle: UILabel!
+    @IBOutlet weak var descView: UIView!
+    @IBOutlet var detailsView: UIView!
+    
+    var touchBeganLocation = CGPoint()
+    var touchBeganY = CGFloat()
     
     func setImage() {
         var data = self.data
         if let posters = data["posters"] as? NSDictionary {
             if let thumbnail = posters["thumbnail"] as? String {
-                //get original image url
-                let originalImgURL = thumbnail.stringByReplacingOccurrencesOfString("tmb.jpg", withString: "ori.jpg")
-                self.backgroundImg?.setImageWithURL(NSURL(string: originalImgURL))
+                if let backgroundImg = self.backgroundImg? {
+                    Utils.setImageWithUrlFromThumbnailToLarge(thumbnail, imageView: backgroundImg)
+                }
             }
         }
     }
@@ -43,6 +50,35 @@ class MovieDetailViewController: UIViewController {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
+        var touch = event.allTouches()?.anyObject() as UITouch
+        if touch.view == descView {
+            touchBeganLocation = touch.locationInView(detailsView)
+            touchBeganY = descView.frame.origin.y
+        }
+    }
+    
+    override func touchesMoved(touches: NSSet, withEvent event: UIEvent) {
+        var touch = event.allTouches()?.anyObject() as UITouch
+        if touch.view == descView {
+            println("touch count 1")
+            var location = touch.locationInView(detailsView)
+            var frame = descView.frame
+            frame.origin.y = touchBeganY + location.y - touchBeganLocation.y
+            //constrain the origin y to be in specific range
+            if frame.origin.y < NAV_BAR_HEIGHT { //128 is nav bar height
+                frame.origin.y =  NAV_BAR_HEIGHT
+            }
+            let screenSize: CGRect = UIScreen.mainScreen().bounds
+            let screenWidth = screenSize.width;
+            let screenHeight = screenSize.height;
+            if frame.origin.y > screenHeight - TEXT_BOTTOM_LIMIT {
+                frame.origin.y = screenHeight - TEXT_BOTTOM_LIMIT
+            }
+            descView.frame = frame
+        }
     }
 
     /*
