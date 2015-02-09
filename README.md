@@ -18,6 +18,8 @@ Notes:
 
 Found there is a bug with setImageWithURL or setImageWithURLRequest in AFNetworking pod. When a same url getting called that the same time or before first one is finished, the second call will fail to excute. I fixed it by adding a queue like wrapper method(Details in [Utils.swift](rottenTomato/Utils.swift)).
 
+Added 2 sections in movies: coming soon and in theater
+
 Walkthrough of all user stories:
 
 ![Video Walkthrough](walk_through.gif)
