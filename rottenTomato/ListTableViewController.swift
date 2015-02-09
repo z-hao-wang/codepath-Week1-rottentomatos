@@ -235,7 +235,13 @@ class ListTableViewController: UITableViewController, UISearchBarDelegate {
         if let posters = data["posters"] as? NSDictionary {
             if let thumbnail = posters["thumbnail"] as? String {
                 if let backgroundImg = cell.movieImage? {
-                    Utils.setImageWithUrlFromThumbnailToLarge(thumbnail, imageView: backgroundImg)
+                    Utils.setImageWithUrlFromThumbnailToLarge(thumbnail, imageView: backgroundImg, successCallback: { (stepName: String) -> () in
+                        if stepName == "thumbnail" {
+                            //fade in the image
+                            UIView.transitionWithView(backgroundImg, duration: 1.0, options: .TransitionCrossDissolve, animations: {}, completion: nil)
+                        }
+                    })
+                    
                 }
             }
             

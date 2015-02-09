@@ -45,12 +45,19 @@ struct Utils {
             })
         }
     }
-    static func setImageWithUrlFromThumbnailToLarge(urlString: String, imageView: UIImageView) {
+    static func setImageWithUrlFromThumbnailToLarge(urlString: String, imageView: UIImageView, successCallback: ((step: String) -> ())?) {
         //if the url is still loading
         self.setImageWithUrl(urlString, imageView: imageView, placeHolerImg: nil, success: { (imageData) -> () in
+            if let cb = successCallback? {
+                cb(step: "thumbnail")
+            }
             //load original image, use thumbnail image as placeholder
             let originalImgURLStr = urlString.stringByReplacingOccurrencesOfString("tmb.jpg", withString: "ori.jpg")
-            self.setImageWithUrl(originalImgURLStr, imageView: imageView, placeHolerImg: imageData, success: {(imageData2) -> () in}, fail:{});
+            self.setImageWithUrl(originalImgURLStr, imageView: imageView, placeHolerImg: imageData, success: {(imageData2) -> () in
+                if let cb = successCallback? {
+                    cb(step: "original")
+                }
+            }, fail:{});
         }, fail: {})
     }
 }

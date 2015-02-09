@@ -29,7 +29,7 @@ class MovieDetailViewController: UIViewController {
         if let posters = data["posters"] as? NSDictionary {
             if let thumbnail = posters["thumbnail"] as? String {
                 if let backgroundImg = self.backgroundImg? {
-                    Utils.setImageWithUrlFromThumbnailToLarge(thumbnail, imageView: backgroundImg)
+                    Utils.setImageWithUrlFromThumbnailToLarge(thumbnail, imageView: backgroundImg, successCallback: nil)
                 }
             }
         }
