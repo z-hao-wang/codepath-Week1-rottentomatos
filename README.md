@@ -19,7 +19,7 @@ Time spent: 10 hours spent in total
   * [x] optional: All images fade in. Images in the table view will fake in when first time loaded
   * [x] optional: For the large poster, load the low-res image first, switch to high-res when complete (optional)
 
-Notes:
+#### Notes:
 
 Found there is a bug with setImageWithURL or setImageWithURLRequest in AFNetworking pod. When a same url getting called that the same time or before first one is finished, the second call will fail to excute. I fixed it by adding a queue like wrapper method(Details in [Utils.swift](rottenTomato/Utils.swift)).
 
